@@ -39,9 +39,13 @@ const PORT = process.env.PORT || 5001;
 const HOST = process.env.HOST || "0.0.0.0";
 // TLS policy: "always" forces it even in dev; default = on in production only;
 // "off" disables it entirely (never recommended outside throwaway test boxes).
-const TLS_ENABLED =
-  process.env.TLS_ENABLED === "always" ||
-  (!process.env.TLS_ENABLED && process.env.NODE_ENV === "production");
+// On Railway the edge proxy terminates TLS and forwards plain HTTP to PORT, so the
+// app must speak HTTP there regardless of TLS_ENABLED.
+const BEHIND_RAILWAY = Boolean(process.env.RAILWAY_ENVIRONMENT);
+const TLS_ENABLED = BEHIND_RAILWAY
+  ? false
+  : process.env.TLS_ENABLED === "always" ||
+    (!process.env.TLS_ENABLED && process.env.NODE_ENV === "production");
 
 const __dirname = path.resolve();
 
